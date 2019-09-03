@@ -1,5 +1,5 @@
-const postgress = require('pg');
-const pool = new postgress.Pool({
+const { Pool } = require('pg');
+const pool = new Pool({
   user: 'mockup',
   host: 'localhost',
   database: 'cms_development',
@@ -7,4 +7,16 @@ const pool = new postgress.Pool({
   port: 5432,
 })
 
-module.exports = pool
+module.exports = {
+  query: async (query, params, callback) => {
+    const start = Date.now()
+
+    return await pool.query(query, params, (err, res) => {
+      const duration = Date.now() - start
+      if (res.rowCount)
+        return { duration, rows: res.rowCount }
+
+      return callback(err, res)
+    })
+  }
+}
